@@ -31,12 +31,15 @@ uint32_t ambientLight;
 static void btn_fxn(uint gpio, uint32_t eventMask) {
     // Tehtävä 1: Vaihda LEDin tila käyttämällä TKJHAT SDK:n sopivaa funktiota.
     // Exercise 1: Toggle the LED using the appropriate function from the TKJHAT SDK.
+    toggle_red_led();
 }
 
 static void sensor_task(void *arg){
     (void)arg;
     // Tehtävä 2: Alusta valoisuusanturi. Etsi SDK-dokumentaatiosta sopiva funktio.
     // Exercise 2: Init the light sensor. Find in the SDK documentation the adequate function.
+    init_veml6030();
+
    
     for(;;){
         
@@ -45,7 +48,8 @@ static void sensor_task(void *arg){
         // Exercise 2: Modify with application code here. Comment following line.
         //             Read sensor data and print it out as string; 
         tight_loop_contents(); 
-
+            printf("Light sensor value: %d\n", read_light());
+        
 
    
 
@@ -156,9 +160,12 @@ int main() {
 
     // Exercise 1: Initialize the button and the led and define an register the corresponding interrupton.
     //             Interruption handler is defined up as btn_fxn
+    init_red_led();
+    init_sw1 ();
+
     // Tehtävä 1:  Alusta painike ja LEd ja rekisteröi vastaava keskeytys.
     //             Keskeytyskäsittelijä on määritelty yläpuolella nimellä btn_fxn
-
+    gpio_set_irq_enabled_with_callback(BUTTON1, GPIO_IRQ_EDGE_FALL, true, btn_fxn);
 
 
     

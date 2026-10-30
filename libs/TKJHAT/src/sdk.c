@@ -545,7 +545,24 @@ uint32_t veml6030_read_light() {
     //            Multiply the value by the adequate value considering Integration Time of 100 ms and Gain of 1/8
     //            using data of page 5 of VEML6030 design application document: https://www.vishay.com/docs/84367/designingveml6030.pdf
     //            Finally, store the value in the variable luxVal_uncorrected.
-    //
+
+    //mistä otetaan tietoa
+    uint8_t txbuf[1] = {VEML6030_ALS_REG};
+    // mihin tieto laitetaan
+    uint8_t rxbuf[2] = {0, 0};
+
+    //Lähetetään rekisterin osoite anturille
+    i2c_write_blocking(i2c_default, VEML6030_I2C_ADDRESS, txbuf, 1, true);
+
+    //Luetaan anturin arvo
+    i2c_read_blocking(i2c_default, VEML6030_I2C_ADDRESS, rxbuf, sizeof(rxbuf), false);
+
+    //yhdistetään luetut tavut
+    uint16_t raw_value = ((uint16_t)rxbuf[1] << 8) | rxbuf[0];
+
+    //tehdään laskutoimitus saadaksemme valaistusvoimakkuuden
+
+
     // Tehtävä 2: Saadaksemme valaistusvoimakkuuden meidän tulee lukea VEML6030_ALS_REG -rekisterin arvo (katso VEML6030-datalehti).
     //            Käytä funktioita i2c_write_blocking ja i2c_read_blocking valaistusvoimakkuusdatan keräämiseen.
     //            Nämä funktiot löytyvät Pico SDK:sta:
@@ -556,7 +573,7 @@ uint32_t veml6030_read_light() {
     //            käyttäen VEML6030-sovellussuunnitteluasiakirjan sivun 5 tietoja:https://www.vishay.com/docs/84367/designingveml6030.pdf
     //            Lopuksi tallenna arvo muuttujaan luxVal_uncorrected.
   
-    uint32_t luxVal_uncorrected = 0; 
+    uint32_t luxVal_uncorrected = raw_value * 0.0576;
     if (luxVal_uncorrected>1000){
         // Polynomial is pulled from pg 10 of the datasheet. 
         // See https://github.com/sparkfun/SparkFun_Ambient_Light_Sensor_Arduino_Library/blob/efde0817bd6857863067bd1653a2cfafe6c68732/src/SparkFun_VEML6030_Ambient_Light_Sensor.cpp#L409
